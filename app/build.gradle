@@ -1,0 +1,91 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
+}
+
+android {
+    compileSdk build_versions.compileSdk
+
+    defaultConfig {
+        applicationId "com.king.easynote"
+        minSdk build_versions.minSdk
+        targetSdk build_versions.targetSdk
+        versionCode app_version.versionCode
+        versionName app_version.versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables {
+            useSupportLibrary true
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    lintOptions {
+        abortOnError false
+        warning 'InvalidPackage'
+    }
+    buildFeatures {
+        compose true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion versions.compose
+        kotlinCompilerVersion versions.kotlin
+    }
+    packagingOptions {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+
+}
+
+dependencies {
+
+    implementation "androidx.core:core-ktx:$versions.coreKtx"
+    implementation "androidx.compose.ui:ui:$versions.compose"
+    implementation "androidx.compose.material:material:$versions.compose"
+//    implementation "androidx.compose.material3:material3:$versions.material3"
+    implementation "androidx.compose.ui:ui-tooling-preview:$versions.compose"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$versions.lifecycleRuntimeKtx"
+    implementation "androidx.activity:activity-compose:$versions.activityCompose"
+
+    testImplementation "junit:junit:$versions.junit"
+    androidTestImplementation "androidx.test.ext:junit:$versions.androidExtJunit"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$versions.espressoCore"
+    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$versions.compose"
+    debugImplementation "androidx.compose.ui:ui-tooling:$versions.compose"
+    debugImplementation "androidx.compose.ui:ui-test-manifest:$versions.compose"
+
+    // Compose dependencies
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$versions.lifecycleViewmodelCompose"
+    implementation "androidx.navigation:navigation-compose:$versions.navigationCompose"
+    implementation "androidx.compose.material:material-icons-extended:$versions.compose"
+    implementation "androidx.hilt:hilt-navigation-compose:$versions.hiltNavigationCompose"
+
+    implementation "com.google.dagger:hilt-android:$versions.daggerHilt"
+    kapt "com.google.dagger:hilt-compiler:$versions.daggerHilt"
+
+    // Room
+    implementation "androidx.room:room-runtime:$versions.room"
+    implementation "androidx.room:room-ktx:$versions.room"
+    kapt "androidx.room:room-compiler:$versions.room"
+
+    implementation project(path: ':base')
+    implementation project(path: ':data')
+    implementation project(path: ':domain')
+    implementation project(path: ':presentation')
+}
