@@ -1,5 +1,6 @@
 # EasyNote
 
+![Image](app/src/main/ic_launcher-playstore.png)
 
 [![Download](https://img.shields.io/badge/download-App-blue.svg)](https://raw.githubusercontent.com/jenly1314/EasyNote/master/app/release/app-release.apk)
 [![API](https://img.shields.io/badge/API-21%2B-blue.svg?style=flat)](https://android-arsenal.com/api?level=21)
