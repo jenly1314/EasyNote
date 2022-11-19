@@ -1,6 +1,5 @@
 package com.king.easynote.presentation
 
-import android.annotation.SuppressLint
 import androidx.compose.animation.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -14,7 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,26 +28,24 @@ import com.king.easynote.base.ui.theme.noteColors
 import com.king.easynote.presentation.component.InputField
 import com.king.easynote.presentation.viewmodel.NoteViewModel
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 
 /**
  * 笔记 - 保存（修改/增加）
  *
  * @author <a href="mailto:jenly1314@gmail.com">Jenly</a>
  */
-@SuppressLint("UnrememberedAnimatable")
 @Composable
 fun NoteScreen(
     navController: NavController,
     viewModel: NoteViewModel = hiltViewModel()
 ) {
-
     val viewState = viewModel.state.value
 
     val scaffoldState = rememberScaffoldState()
-    val scope = rememberCoroutineScope()
 
-    val backgroundAnim = Animatable(Color(viewState.color))
+    var backgroundAnim = remember {
+        Animatable(Color(viewState.color))
+    }
 
     Scaffold(
         modifier = Modifier,
@@ -85,12 +82,6 @@ fun NoteScreen(
                                 shape = CircleShape
                             )
                             .clickable {
-                                scope.launch {
-                                    backgroundAnim.animateTo(
-                                        targetValue = color,
-                                        animationSpec = tween()
-                                    )
-                                }
                                 viewModel.onEvent(NoteViewModel.NoteEvent.ChangeColor(colorInt))
                             })
 
@@ -137,6 +128,13 @@ fun NoteScreen(
             )
             Spacer(modifier = Modifier.padding(10.dp))
         }
+    }
+
+    LaunchedEffect(viewState.color){
+        backgroundAnim.animateTo(
+            targetValue = Color(viewState.color),
+            animationSpec = tween()
+        )
     }
 
     LaunchedEffect(Unit) {

@@ -13,7 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.king.easynote.base.ui.theme.EasyNoteTheme
-import com.king.easynote.presentation.navigation.Route
+import com.king.easynote.presentation.navigation.NavRoute
 import com.king.easynote.presentation.navigation.noteNavGraph
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -34,6 +34,9 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/**
+ * 主页
+ */
 @Composable
 fun MainCompose(){
     Surface(
@@ -43,7 +46,7 @@ fun MainCompose(){
         val navController = rememberNavController()
         NavHost(
             navController = navController,
-            startDestination = Route.NoteMain.route
+            startDestination = NavRoute.NoteMain.route
         ) {
             noteNavGraph(navController)
         }

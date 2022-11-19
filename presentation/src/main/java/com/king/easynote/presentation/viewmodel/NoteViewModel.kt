@@ -8,6 +8,8 @@ import com.king.easynote.base.ui.theme.noteColors
 import com.king.easynote.domain.exception.NoteException
 import com.king.easynote.domain.model.Note
 import com.king.easynote.domain.usecase.NoteUseCases
+import com.king.easynote.presentation.navigation.NavArgumentKey
+import com.king.easynote.presentation.navigation.NavRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -23,37 +25,37 @@ class NoteViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : BaseViewModel<NoteViewModel.NoteState, NoteViewModel.NoteEvent>(NoteState()) {
 
-
     private val _event = MutableSharedFlow<UIEvent>()
     val event = _event.asSharedFlow()
 
     private var noteId: Int? = null
 
     init {
-        savedStateHandle.get<Int>("noteId")?.takeIf { it > 0 }?.let {
-            viewModelScope.launch {
-                noteUseCases.getNote.execute(it)?.also {
-                    noteId = it.id
-                    _state.value = state.value.copy(
-                        title = it.title,
-                        content = it.content,
-                        color = it.color
-                    )
+        savedStateHandle.get<Int>(NavArgumentKey.NoteId.name)?.takeIf { it != NavRoute.NONE_ID }
+            ?.let {
+                viewModelScope.launch {
+                    noteUseCases.getNote.execute(it)?.also {
+                        noteId = it.id
+                        internalState.value = state.value.copy(
+                            title = it.title,
+                            content = it.content,
+                            color = it.color
+                        )
+                    }
                 }
             }
-        }
     }
 
     override fun onEvent(event: NoteEvent) {
         when (event) {
             is NoteEvent.ChangeTitle -> {
-                _state.value = state.value.copy(title = event.title)
+                internalState.value = state.value.copy(title = event.title)
             }
             is NoteEvent.ChangeContent -> {
-                _state.value = state.value.copy(content = event.content)
+                internalState.value = state.value.copy(content = event.content)
             }
             is NoteEvent.ChangeColor -> {
-                _state.value = state.value.copy(color = event.color)
+                internalState.value = state.value.copy(color = event.color)
             }
             is NoteEvent.SaveNote -> {
                 viewModelScope.launch {
@@ -61,7 +63,7 @@ class NoteViewModel @Inject constructor(
                         noteUseCases.saveNote.execute(state.value.toNote(noteId))
                         // 保存后通知UI
                         _event.emit(UIEvent.SaveNote)
-                    }catch (e: NoteException) {
+                    } catch (e: NoteException) {
                         // 保存失败
                         _event.emit(UIEvent.ShowMessage(e.message))
                     }
@@ -69,7 +71,6 @@ class NoteViewModel @Inject constructor(
             }
         }
     }
-
 
 
     private fun NoteState.toNote(noteId: Int?): Note {
@@ -85,26 +86,23 @@ class NoteViewModel @Inject constructor(
         val color: Int = noteColors.random().toArgb()
     )
 
-
     /**
      * 事件
      */
-    sealed class NoteEvent {
-        data class ChangeTitle(val title: String) : NoteEvent()
-        data class ChangeContent(val content: String) : NoteEvent()
-        data class ChangeColor(val color: Int) : NoteEvent()
-
-        object SaveNote : NoteEvent()
+    sealed interface NoteEvent {
+        data class ChangeTitle(val title: String) : NoteEvent
+        data class ChangeContent(val content: String) : NoteEvent
+        data class ChangeColor(val color: Int) : NoteEvent
+        object SaveNote : NoteEvent
     }
 
     /**
      * UI事件
      */
-    sealed class UIEvent {
-        data class ShowMessage(val message: String?) : UIEvent()
-        object SaveNote : UIEvent()
+    sealed interface UIEvent {
+        data class ShowMessage(val message: String?) : UIEvent
+        object SaveNote : UIEvent
     }
-
 
 }
 

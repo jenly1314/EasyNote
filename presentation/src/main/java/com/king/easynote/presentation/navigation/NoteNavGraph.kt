@@ -1,5 +1,7 @@
 package com.king.easynote.presentation.navigation
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.*
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
@@ -13,36 +15,54 @@ import com.king.easynote.presentation.NoteScreen
  * @author <a href="mailto:jenly1314@gmail.com">Jenly</a>
  */
 fun NavGraphBuilder.noteNavGraph(navController: NavController) {
-    navigation(startDestination = Route.NoteListRoute.route, route = Route.NoteMain.route) {
+    navigation(
+        startDestination = NavRoute.NoteListRoute.navGraphRoute(),
+        route = NavRoute.NoteMain.route
+    ) {
         // 笔记列表
-        composable(route = Route.NoteListRoute.route) {
+        composable(navRoute = NavRoute.NoteListRoute) {
             NoteListScreen(navController)
         }
         // 笔记 - 保存（修改/增加）
-        composable(
-            route = Route.NoteRoute.route + "?noteId={noteId}",
-            arguments = listOf(
-                navArgument(name = "noteId") {
-                    type = NavType.IntType
-                    defaultValue = -1
-                }
-            )
-        ) {
+        composable(navRoute = NavRoute.NoteRoute) {
             NoteScreen(navController = navController)
         }
         // 删除笔记对话框
-        dialog(
-            route = Route.DeleteNoteDialogRoute.route + "?noteId={noteId}",
-            arguments = listOf(
-                navArgument(name = "noteId") {
-                    type = NavType.IntType
-                    defaultValue = -1
-                }
-            )
-        ){
-            val noteId = it.arguments?.getInt("noteId") ?: -1
+        dialog(navRoute = NavRoute.DeleteNoteDialogRoute) {
+            val noteId = it.arguments?.getInt(NavArgumentKey.NoteId.name) ?: NavRoute.NONE_ID
             DeleteNoteDialog(navController, noteId)
         }
     }
 
 }
+
+/**
+ * 将 Composable 添加到导航图
+ */
+fun NavGraphBuilder.composable(
+    navRoute: NavRoute,
+    deepLinks: List<NavDeepLink> = emptyList(),
+    content: @Composable (NavBackStackEntry) -> Unit
+) = composable(
+    route = navRoute.navGraphRoute(),
+    arguments = navRoute.arguments,
+    deepLinks = deepLinks,
+    content = content
+)
+
+/**
+ * 将 Composable 以对话框的方式添加到导航图
+ */
+fun NavGraphBuilder.dialog(
+    navRoute: NavRoute,
+    deepLinks: List<NavDeepLink> = emptyList(),
+    dialogProperties: DialogProperties = DialogProperties(),
+    content: @Composable (NavBackStackEntry) -> Unit
+) = dialog(
+    route = navRoute.navGraphRoute(),
+    arguments = navRoute.arguments,
+    dialogProperties = dialogProperties,
+    deepLinks = deepLinks,
+    content = content
+)
+

@@ -3,8 +3,8 @@ package com.king.easynote.base.domain.usecase
 /**
  * UseCase 基类
  *
- * @param P params
- * @param R Result
+ * @param P params 参数
+ * @param R Result 结果
  *
  * @author <a href="mailto:jenly1314@gmail.com">Jenly</a>
  */

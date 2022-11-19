@@ -16,9 +16,8 @@ class DeleteNoteViewModel @Inject constructor(private val noteUseCases: NoteUseC
         DeleteNoteState()
     ) {
 
-
     override fun onEvent(event: DeleteNoteEvent) {
-        when(event){
+        when (event) {
             is DeleteNoteEvent.DeleteNote -> {
                 viewModelScope.launch {
                     // 删除笔记
@@ -36,7 +35,7 @@ class DeleteNoteViewModel @Inject constructor(private val noteUseCases: NoteUseC
     /**
      * 事件
      */
-    sealed class DeleteNoteEvent {
-        data class DeleteNote(val noteId: Int) : DeleteNoteEvent()
+    sealed interface DeleteNoteEvent {
+        data class DeleteNote(val noteId: Int) : DeleteNoteEvent
     }
 }

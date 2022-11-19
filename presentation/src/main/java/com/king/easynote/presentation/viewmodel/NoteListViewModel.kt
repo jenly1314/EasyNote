@@ -46,7 +46,7 @@ class NoteListViewModel @Inject constructor(private val noteUseCases: NoteUseCas
      * 更新笔记列表
      */
     private fun updateNoteList(text: String) {
-        _state.value = state.value.copy(
+        internalState.value = state.value.copy(
             text = text,
             notes = if (text.isNotBlank()) originData.value.filter { note ->
                 note.title.contains(text) || note.content.contains(text)
@@ -65,8 +65,8 @@ class NoteListViewModel @Inject constructor(private val noteUseCases: NoteUseCas
     /**
      * 事件
      */
-    sealed class NoteListEvent {
-        data class SearchNote(val text: String) : NoteListEvent()
+    sealed interface NoteListEvent {
+        data class SearchNote(val text: String) : NoteListEvent
     }
 }
 

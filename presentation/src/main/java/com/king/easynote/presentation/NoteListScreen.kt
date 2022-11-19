@@ -1,6 +1,5 @@
 package com.king.easynote.presentation
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,6 +12,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -22,32 +22,25 @@ import com.king.easynote.base.ui.theme.HintColor
 import com.king.easynote.base.ui.theme.TitleColor
 import com.king.easynote.presentation.component.InputField
 import com.king.easynote.presentation.component.NoteItem
-import com.king.easynote.presentation.navigation.Route
+import com.king.easynote.presentation.navigation.NavRoute
 import com.king.easynote.presentation.viewmodel.NoteListViewModel
-
 
 /**
  * 笔记列表
  *
  * @author <a href="mailto:jenly1314@gmail.com">Jenly</a>
  */
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun NoteListScreen(
     navController: NavController,
-    viewModel: NoteListViewModel = hiltViewModel(
-        navController.getBackStackEntry(Route.NoteListRoute.route)
-    )
+    viewModel: NoteListViewModel = hiltViewModel()
 ) {
 
-    val scaffoldState = rememberScaffoldState()
-
     Scaffold(
-        scaffoldState = scaffoldState,
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    navController.navigate(Route.NoteRoute.route)
+                    navController.navigate(NavRoute.NoteRoute.route)
                 },
                 backgroundColor = MaterialTheme.colors.primary
             ) {
@@ -63,10 +56,9 @@ fun NoteListScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(start = 16.dp, end = 16.dp, bottom = it.calculateBottomPadding())
         ) {
             TopBar()
-            Spacer(modifier = Modifier.padding(10.dp))
             NoteListContent(navController, viewModel)
         }
     }
@@ -79,8 +71,9 @@ fun NoteListScreen(
 @Composable
 private fun TopBar() {
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(all = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
@@ -118,26 +111,27 @@ fun NoteListContent(
     )
 
     if (noteList.isNotEmpty()) {
-        Spacer(modifier = Modifier.padding(10.dp))
+        Spacer(modifier = Modifier.padding(8.dp))
         // 列表项
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(noteList) { note ->
                 NoteItem(
                     note = note,
                     modifier = Modifier
+                        .clip(RoundedCornerShape(16.dp))
                         .fillMaxWidth()
                         .clickable {
                             // 修改笔记
-                            navController.navigate(Route.NoteRoute.route + "?noteId=${note.id}")
+                            navController.navigate(NavRoute.NoteRoute.navigateRoute(note.id))
                         }) {
                     // 点击删除笔记
-                    navController.navigate(Route.DeleteNoteDialogRoute.route + "?noteId=${note.id}")
+                    navController.navigate(NavRoute.DeleteNoteDialogRoute.navigateRoute(note.id))
                 }
                 Spacer(modifier = Modifier.padding(bottom = 16.dp))
             }
             // 让底部能向上滑一段距离，避免被遮盖
             item {
-                Spacer(modifier = Modifier.padding(bottom = 56.dp))
+                Spacer(modifier = Modifier.padding(bottom = 60.dp))
             }
         }
     } else {
@@ -145,6 +139,5 @@ fun NoteListContent(
             Text(text = stringResource(R.string.content_is_empty), color = HintColor)
         }
     }
-
 }
 
